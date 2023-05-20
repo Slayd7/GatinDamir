@@ -1,0 +1,54 @@
+-- Простые запросы
+-- 1. Названия плейлистов начинающися на «А»:
+
+select 
+	a.name
+from 
+	playlists a
+where a.name like "A%"
+
+-- 2. Вывод всех пользователей женского пола:
+
+select 
+	c.login
+from 
+	user c
+where c.gender = "f"
+
+-- Запросы с агрегациями
+-- 1. Получить количество всех пользователей, зарегистрированных на сайте:
+
+SELECT COUNT(*) FROM user;
+
+-- 2. Получить среднее количество просмотров на видео:
+
+SELECT AVG(views) FROM videos;
+
+-- Сложные запросы с объединением 2-3 таблиц с помощью Join 2-3
+-- 1. Получить все видео, загруженные пользователями, у которых пол женский:
+
+SELECT v.name, v.views, c.name FROM videos v
+JOIN channel c ON v.id_author = c.channel_id
+JOIN user u ON c.id_user = u.user_id
+WHERE u.gender = "F";
+
+-- 2. Получить список всех видео, загруженных на каналы пользователей мужского пола, с количеством просмотров и лайков, а также именами авторов и логинами пользователей:
+
+SELECT v.name, v.views, v.likes, c.name, u.login FROM videos v
+JOIN channel c ON v.id_author = c.channel_id
+JOIN user u ON c.id_user = u.user_id
+WHERE u.gender = "M";
+
+-- Сложные запросы с объединениями 2-3 таблиц подзапросами 2-3
+-- 1. Получить список всех пользователей, у которых есть хотя бы один канал:
+
+SELECT * FROM user
+WHERE user_id IN (SELECT DISTINCT id_user FROM channel);
+
+-- 2. Получить список всех комментариев, которые были оставлены на видео, загруженные на каналы пользователей женского пола:
+
+SELECT c.text FROM comments c
+WHERE c.id_video IN (SELECT DISTINCT v.video_id FROM videos v
+                    JOIN channel ON v.id_author = channel.channel_id
+                    JOIN user ON channel.id_user = user.user_id
+                    WHERE user.gender = "F");
